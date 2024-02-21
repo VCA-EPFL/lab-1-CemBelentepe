@@ -42,7 +42,7 @@ module mkVectorDot (VD);
                             address: zeroExtend(pos_a),
                             datain: ?});
 
-        if (pos_a < dim*zeroExtend(i))
+        if (pos_a < dim*zeroExtend(i+1)-1)
             pos_a <= pos_a + 1;
         else done_a <= True;
 
@@ -56,7 +56,7 @@ module mkVectorDot (VD);
                 address: zeroExtend(pos_b),
                 datain: ?});
 
-        if (pos_b < dim*zeroExtend(i))
+        if (pos_b < dim*zeroExtend(i+1)-1)
             pos_b <= pos_b + 1;
         else done_b <= True;
     
@@ -67,7 +67,7 @@ module mkVectorDot (VD);
         let out_a <- a.portA.response.get();
         let out_b <- b.portA.response.get();
 
-        output_res <=  out_a*out_b;     
+        output_res <=  output_res + out_a*out_b;     
         pos_out <= pos_out + 1;
         
         if (pos_out == dim-1) begin
@@ -83,10 +83,11 @@ module mkVectorDot (VD);
 
     method Action start(Bit#(8) dim_in, Bit#(2) i_in) if (!ready_start);
         ready_start <= True;
+        output_res <= 0;
         dim <= dim_in;
         done_all <= False;
-        pos_a <= dim_in*zeroExtend(i);
-        pos_b <= dim_in*zeroExtend(i);
+        pos_a <= dim_in*zeroExtend(i_in);
+        pos_b <= dim_in*zeroExtend(i_in);
         done_a <= False;
         done_b <= False;
         pos_out <= 0;
@@ -94,6 +95,7 @@ module mkVectorDot (VD);
     endmethod
 
     method ActionValue#(Bit#(32)) response() if (done_all);
+        ready_start <= False;
         return output_res;
     endmethod
 
