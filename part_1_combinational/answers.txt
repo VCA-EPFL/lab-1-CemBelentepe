@@ -2,12 +2,14 @@
 
 3.  Shifters
 
->>
+>> If shftAmnt is dynamic (nonconstant), count the number of selectors (and their size) of naiveShfl(in, shftAmnt)
+  It will create a 16-to-1 MUX, selected by the `shftAmnt`, where each selection and the output has the type of Vector#(16, Bit#(16)) which is 256 bits.
 
->>
+>> If shftAmnt is constant (for example 0b0100), count the number of selectors (and their size) of naiveShfl(in, shftAmnt).
+  Shifting by a constant amount does not require any selectors, it is just wire connections. The size of the wire would be 16*16=256 bits.
 
->>
-
+>> Count the number of selectors (and their size) of your barrel shifter
+  When the loop unrolled, it will have four 2-to-1 MUXs back to back, each carrying the signal with type Vector#(16, Bit#(16))
 ---
 
-Time spent on Part 1: _____
+Time spent on Part 1: 15 mins

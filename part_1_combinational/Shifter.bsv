@@ -2,6 +2,7 @@ import Vector::*;
 
 typedef Bit#(16) Word;
 
+(* noinline *)
 function Vector#(16, Word) naiveShfl(Vector#(16, Word) in, Bit#(4) shftAmnt);
     Vector#(16, Word) resultVector = in; 
     for (Integer i = 0; i < 16; i = i + 1) begin
