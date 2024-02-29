@@ -42,7 +42,7 @@ module mkVectorDot (VD);
                             address: zeroExtend(pos_a),
                             datain: ?});
 
-        if (pos_a < dim*zeroExtend(i+1)-1)
+        if (pos_a < dim*zeroExtend(i+1)-1) // BUG 1: position starts from dim*i and goes until dim*i+dim-1
             pos_a <= pos_a + 1;
         else done_a <= True;
 
@@ -56,7 +56,7 @@ module mkVectorDot (VD);
                 address: zeroExtend(pos_b),
                 datain: ?});
 
-        if (pos_b < dim*zeroExtend(i+1)-1)
+        if (pos_b < dim*zeroExtend(i+1)-1) // BUG 2: position starts from dim*i and goes until dim*i+dim-1
             pos_b <= pos_b + 1;
         else done_b <= True;
     
@@ -67,7 +67,7 @@ module mkVectorDot (VD);
         let out_a <- a.portA.response.get();
         let out_b <- b.portA.response.get();
 
-        output_res <=  output_res + out_a*out_b;     
+        output_res <=  output_res + out_a*out_b;   // BUG 3: Multiplication should accumulate  
         pos_out <= pos_out + 1;
         
         if (pos_out == dim-1) begin
@@ -83,11 +83,11 @@ module mkVectorDot (VD);
 
     method Action start(Bit#(8) dim_in, Bit#(2) i_in) if (!ready_start);
         ready_start <= True;
-        output_res <= 0;
+        output_res <= 0; // BUG 4: Output should be cleared for the process
         dim <= dim_in;
         done_all <= False;
-        pos_a <= dim_in*zeroExtend(i_in);
-        pos_b <= dim_in*zeroExtend(i_in);
+        pos_a <= dim_in*zeroExtend(i_in); // BUG 5: Variable 'i' refers to the old value of the register, 'i_in' should be the correct value
+        pos_b <= dim_in*zeroExtend(i_in); // BUG 6: Variable 'i' refers to the old value of the register, 'i_in' should be the correct value
         done_a <= False;
         done_b <= False;
         pos_out <= 0;
@@ -95,7 +95,7 @@ module mkVectorDot (VD);
     endmethod
 
     method ActionValue#(Bit#(32)) response() if (done_all);
-        ready_start <= False;
+        ready_start <= False; // BUG 7: To start the 'ready_start' value should be false, so when the response is read it can be set to false
         return output_res;
     endmethod
 
